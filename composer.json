@@ -12,6 +12,7 @@
         "php": "^7.0",
         "php-translation/common": "^0.2",
         "php-translation/symfony-storage": "^0.2",
+        "nediam/phraseapp-lib": "^1.2",
         "symfony/translation": "^2.7 || ^3.0"
     },
     "require-dev": {
@@ -24,7 +25,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Translation\\PlatformAdapter\\Phraseapp\\": "src/"
+            "Translation\\PlatformAdapter\\PhraseApp\\": "src/"
         }
     },
     "scripts": {
