@@ -27,13 +27,6 @@ class PhraseApp implements Storage, TransferableStorage
      */
     private $localeToIdMapping;
 
-    /**
-     * PhraseApp constructor.
-     *
-     * @param PhraseAppClient $client
-     * @param string $projectId
-     * @param string $acountId
-     */
     public function __construct(PhraseAppClient $client, string $projectId, array $localeToIdMapping)
     {
         $this->client = $client;
@@ -103,6 +96,56 @@ class PhraseApp implements Storage, TransferableStorage
 
                 return;
             }
+        } catch (\Throwable $e) {
+            throw new StorageException($e->getMessage());
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function update(Message $message)
+    {
+        try {
+            $response = $this->client->request('key.search', [
+                'project_id' => $this->projectId,
+                'locale_id' => $this->getLocaleId($message->getLocale()),
+                'q' => 'tags:' . $message->getDomain() . ' name:' . $message->getDomain() . '::' . $message->getKey(),
+            ]);
+
+            foreach ($response as $key) {
+                if ($key['name'] === $message->getDomain() . '::' . $message->getKey()) {
+                    $keyId = $key['id'];
+                    break;
+                }
+            }
+
+            if (!isset($keyId)) {
+                $response = $this->client->request('key.create', [
+                    'project_id' => $this->projectId,
+                    'locale_id' => $this->getLocaleId($message->getLocale()),
+                    'name' => $message->getDomain() . '::' . $message->getKey(),
+                    'tags' => $message->getDomain(),
+                ]);
+
+                $keyId = $response['id'];
+            }
+
+            $response = $this->client->request('translation.indexKeys', [
+                'project_id' => $this->projectId,
+                'key_id' => $keyId
+            ]);
+
+            if (empty($response)) {
+                $this->client->request('translation.create', [
+                    'project_id' => $this->projectId,
+                    'locale_id' => $this->getLocaleId($message->getLocale()),
+                    'key_id' => $keyId,
+                    'content' => $message->getDomain() . '::' . $message->getTranslation(),
+                ]);
+
+                return;
+            }
 
             foreach ($response as $translation) {
                 if ($translation['locale']['name'] === $message->getLocale()) {
@@ -123,14 +166,6 @@ class PhraseApp implements Storage, TransferableStorage
         } catch (\Throwable $e) {
             throw new StorageException($e->getMessage());
         }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function update(Message $message)
-    {
-        $this->create($message);
     }
 
     /**
@@ -185,8 +220,8 @@ class PhraseApp implements Storage, TransferableStorage
                 throw new StorageException($e->getMessage());
             }
 
-            $data = $response['text'];
             /* @var \GuzzleHttp\Stream\Stream $data */
+            $data = $response['text'];
             $catalogue->addCatalogue(XliffConverter::contentToCatalogue($data->getContents(), $locale, $domain));
         }
     }

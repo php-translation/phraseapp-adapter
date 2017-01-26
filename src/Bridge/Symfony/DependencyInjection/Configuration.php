@@ -16,9 +16,6 @@ class Configuration implements ConfigurationInterface
         $root = $treeBuilder->root('translation_adapter_phrase_app');
 
         $root->children()
-            ->scalarNode('httplug_client')->defaultValue('httplug.client')->cannotBeEmpty()->end()
-            ->scalarNode('httplug_message_factory')->defaultValue('httplug.message_factory')->cannotBeEmpty()->end()
-            ->scalarNode('httplug_uri_factory')->defaultValue('httplug.uri_factory')->cannotBeEmpty()->end()
             ->scalarNode('project_id')->cannotBeEmpty()->end()
             ->scalarNode('token')->cannotBeEmpty()->end()
             ->arrayNode('locale_to_id_mapping')->prototype('scalar')->end()->end()
