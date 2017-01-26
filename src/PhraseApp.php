@@ -70,7 +70,7 @@ class PhraseApp implements Storage, TransferableStorage
                 }
             }
 
-            if (! isset($keyId)) {
+            if (!isset($keyId)) {
                 $response = $this->client->request('key.create', [
                     'project_id' => $this->projectId,
                     'locale_id' => $this->getLocaleId($message->getLocale()),
@@ -154,7 +154,7 @@ class PhraseApp implements Storage, TransferableStorage
                 break;
             }
 
-            if (! isset($id)) {
+            if (!isset($id)) {
                 throw new StorageException('Translation id not found.');
             }
 
@@ -187,7 +187,7 @@ class PhraseApp implements Storage, TransferableStorage
                 }
             }
 
-            if (! isset($keyId)) {
+            if (!isset($keyId)) {
                 return;
             }
 
