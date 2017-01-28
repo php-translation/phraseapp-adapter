@@ -6,25 +6,31 @@
         {
             "name": "Tobias Nyholm",
             "email": "tobias.nyholm@gmail.com"
+        },
+        {
+            "name": "Sascha-Oliver Prolic",
+            "email": "saschaprolic@googlemail.com"
         }
     ],
     "require": {
         "php": "^7.0",
         "php-translation/common": "^0.2",
         "php-translation/symfony-storage": "^0.2",
+        "friendsofapi/phraseapp": "^0.1.1",
         "symfony/translation": "^2.7 || ^3.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^4.5 || ^5.4",
+        "phpunit/phpunit": "^5.7",
         "nyholm/symfony-bundle-test": "^1.0",
         "php-http/curl-client": "^1.6",
         "php-http/httplug-bundle": "^1.3",
         "guzzlehttp/psr7": "^1.3",
-        "php-http/message": "^1.4"
+        "php-http/message": "^1.4",
+        "phpunit/php-token-stream": "^1.4.9"
     },
     "autoload": {
         "psr-4": {
-            "Translation\\PlatformAdapter\\Phraseapp\\": "src/"
+            "Translation\\PlatformAdapter\\PhraseApp\\": "src/"
         }
     },
     "scripts": {
