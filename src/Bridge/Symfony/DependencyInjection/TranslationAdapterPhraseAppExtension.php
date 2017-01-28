@@ -51,7 +51,7 @@ class TranslationAdapterPhraseAppExtension extends Extension
             ->addArgument($config['domains']);
 
         if (isset($config['default_locale'])) {
-            $apiDef->addArgument($config['default_locale']);
+            $adapterDef->addArgument($config['default_locale']);
         }
     }
 }
