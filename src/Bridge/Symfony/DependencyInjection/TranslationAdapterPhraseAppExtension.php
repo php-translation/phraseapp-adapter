@@ -35,7 +35,7 @@ class TranslationAdapterPhraseAppExtension extends Extension
             ->addArgument(new Reference($config['httplug_client']))
             ->addArgument(new Reference($config['httplug_uri_factory']));
 
-        $apiDef = $container->register('php_translation.adapter.phrase_app.raw');
+        $apiDef = $container->register('php_translation.adapter.loco.raw');
         $apiDef->setClass(PhraseAppClient::class)
             ->setFactory([PhraseAppClient::class, 'configure'])
             ->addArgument($clientConfigurator)
@@ -49,5 +49,9 @@ class TranslationAdapterPhraseAppExtension extends Extension
             ->addArgument($config['project_id'])
             ->addArgument($config['locale_to_id_mapping'])
             ->addArgument($config['domains']);
+
+        if (isset($config['default_locale'])) {
+            $apiDef->addArgument($config['default_locale']);
+        }
     }
 }

@@ -36,10 +36,16 @@ final class XliffConverter
      *
      * @return string
      */
-    public static function catalogueToContent(MessageCatalogue $catalogue, $domain)
+    public static function catalogueToContent(MessageCatalogue $catalogue, $domain, $defaultLocale = null)
     {
         $dumper = new XliffDumper();
 
-        return $dumper->getFormattedCatalogue($catalogue, $domain);
+        if ($defaultLocale) {
+            $options = ['default_locale' => $defaultLocale];
+        } else {
+            $options = [];
+        }
+
+        return $dumper->getFormattedCatalogue($catalogue, $domain, $options);
     }
 }

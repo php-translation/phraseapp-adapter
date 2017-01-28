@@ -8,7 +8,7 @@ use Translation\Common\Exception\StorageException;
 use Translation\Common\Model\Message;
 use Translation\Common\Storage;
 use Translation\Common\TransferableStorage;
-use Translation\SymfonyStorage\XliffConverter;
+use Translation\PlatformAdapter\PhraseApp\Bridge\Symfony\XliffConverter;
 
 /**
  * @author Sascha-Oliver Prolic <saschaprolic@googlemail.com>
@@ -35,12 +35,23 @@ class PhraseApp implements Storage, TransferableStorage
      */
     private $domains;
 
-    public function __construct(PhraseAppClient $client, string $projectId, array $localeToIdMapping, array $domains)
-    {
+    /**
+     * @var string|null
+     */
+    private $defaultLocale;
+
+    public function __construct(
+        PhraseAppClient $client,
+        string $projectId,
+        array $localeToIdMapping,
+        array $domains,
+        string $defaultLocale = null
+    ) {
         $this->client = $client;
         $this->projectId = $projectId;
         $this->localeToIdMapping = $localeToIdMapping;
         $this->domains = $domains;
+        $this->defaultLocale;
     }
 
     public function get($locale, $domain, $key)
@@ -99,7 +110,7 @@ class PhraseApp implements Storage, TransferableStorage
         $localeId = $this->getLocaleId($locale);
 
         foreach ($this->domains as $domain) {
-            $data = XliffConverter::catalogueToContent($catalogue, $domain);
+            $data = XliffConverter::catalogueToContent($catalogue, $domain, $this->defaultLocale);
 
             $file = sys_get_temp_dir() . '/' . $domain . '.' . $locale . '.xlf';
 
