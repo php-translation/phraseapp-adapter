@@ -7,7 +7,8 @@ use Symfony\Component\Translation\MessageCatalogue;
 
 /**
  * Custom XliffFileDumper for use with phrase app
- * This class can be removed, as soon as https://github.com/symfony/symfony/pull/21442 is merged
+ *
+ * This class is required, because we have unique key names, so we have to make keyname = "$domain::$source"
  */
 class XliffFileDumper extends FileDumper
 {
@@ -86,11 +87,11 @@ class XliffFileDumper extends FileDumper
             $translation = $dom->createElement('trans-unit');
 
             // changed for phrase app
-            $translation->setAttribute('id', sha1("$domain::$source"));
+            $translation->setAttribute('id', md5($source));
             $translation->setAttribute('resname', $source);
 
             $s = $translation->appendChild($dom->createElement('source'));
-            $s->appendChild($dom->createTextNode($source));
+            $s->appendChild($dom->createTextNode("$domain::$source"));
 
             // Does the target contain characters requiring a CDATA section?
             $text = 1 === preg_match('/[&<>]/', $target) ? $dom->createCDATASection($target) : $dom->createTextNode($target);
@@ -146,14 +147,12 @@ class XliffFileDumper extends FileDumper
 
         foreach ($messages->all($domain) as $source => $target) {
             $translation = $dom->createElement('unit');
-
-            // changed for phrase app
-            $translation->setAttribute('id', sha1("$domain::$source"));
+            $translation->setAttribute('id', md5($source));
 
             $segment = $translation->appendChild($dom->createElement('segment'));
 
             $s = $segment->appendChild($dom->createElement('source'));
-            $s->appendChild($dom->createTextNode($source));
+            $s->appendChild($dom->createTextNode("$domain::$source"));
 
             // Does the target contain characters requiring a CDATA section?
             $text = 1 === preg_match('/[&<>]/', $target) ? $dom->createCDATASection($target) : $dom->createTextNode($target);

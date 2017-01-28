@@ -3,12 +3,12 @@
 namespace Translation\PlatformAdapter\PhraseApp\Bridge\Symfony;
 
 use Symfony\Component\Translation\MessageCatalogue;
-use Translation\SymfonyStorage\Dumper\XliffDumper;
 use Translation\SymfonyStorage\Loader\XliffLoader;
 
 /**
  * Utility class to convert between a MessageCatalogue and XLIFF file content.
- * This class can be removed, as soon as https://github.com/symfony/symfony/pull/21442 is merged
+ *
+ * This class is used to use the custom XliffDumper
  */
 final class XliffConverter
 {

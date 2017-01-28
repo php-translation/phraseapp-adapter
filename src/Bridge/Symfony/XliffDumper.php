@@ -5,7 +5,7 @@ namespace Translation\PlatformAdapter\PhraseApp\Bridge\Symfony;
 use Symfony\Component\Translation\MessageCatalogue;
 
 /**
- * This class can be removed, as soon as https://github.com/symfony/symfony/pull/21442 is merged
+ * This class is used to use the custom XliffFileDumper
  */
 final class XliffDumper extends XliffFileDumper
 {
