@@ -36,6 +36,9 @@ public function registerBundles()
 ``` yaml
 # /app/config/config.yml
 translation_adapter_phrase_app:
+    httplug_client: httplug.client.default
+    httplug_message_factory: httplug.message_factory.default
+    httplug_uri_factory: httplug.uri_factory.default
     project_id: <your project id>
     locale_to_id_mapping:
         de: <de locale id>

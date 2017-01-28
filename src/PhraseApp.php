@@ -91,7 +91,7 @@ class PhraseApp implements Storage, TransferableStorage
         foreach ($catalogue->getDomains() as $domain) {
             $data = XliffConverter::catalogueToContent($catalogue, $domain);
 
-            $file = sys_get_temp_dir() . '/' . $domain . '_' . $locale . '.xlf';
+            $file = sys_get_temp_dir() . '/' . $domain . '.' . $locale . '.xlf';
 
             try {
                 file_put_contents($file, $data);
