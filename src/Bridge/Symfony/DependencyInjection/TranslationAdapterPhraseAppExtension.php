@@ -9,6 +9,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
+use Translation\PlatformAdapter\PhraseApp\Bridge\Symfony\XliffFileDumper;
 use Translation\PlatformAdapter\PhraseApp\PhraseApp;
 
 /**
@@ -23,6 +24,9 @@ class TranslationAdapterPhraseAppExtension extends Extension
     {
         $configuration = new Configuration($container);
         $config = $this->processConfiguration($configuration, $configs);
+
+        // this can be removed, as soon as https://github.com/symfony/symfony/pull/21442 is merged
+        $container->setParameter('translation.dumper.xliff.class', XliffFileDumper::class);
 
         $requestBuilder = (new Definition(RequestBuilder::class))
             ->addArgument(new Reference($config['httplug_message_factory']));
