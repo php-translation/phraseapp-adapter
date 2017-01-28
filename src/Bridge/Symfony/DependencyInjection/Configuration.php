@@ -25,6 +25,7 @@ class Configuration implements ConfigurationInterface
             ->scalarNode('project_id')->cannotBeEmpty()->end()
             ->scalarNode('token')->cannotBeEmpty()->end()
             ->arrayNode('locale_to_id_mapping')->prototype('scalar')->end()->end()
+            ->arrayNode('domains')->prototype('scalar')->end()->end()
         ->end();
 
         return $treeBuilder;

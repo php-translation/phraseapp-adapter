@@ -44,6 +44,7 @@ class TranslationAdapterPhraseAppExtension extends Extension
             ->setClass(PhraseApp::class)
             ->addArgument($apiDef)
             ->addArgument($config['project_id'])
-            ->addArgument($config['locale_to_id_mapping']);
+            ->addArgument($config['locale_to_id_mapping'])
+            ->addArgument($config['domains']);
     }
 }

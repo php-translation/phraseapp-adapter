@@ -45,6 +45,7 @@ translation_adapter_phrase_app:
         en: <en locale id>
         fr: <fr locale id>
     token: <your phrase app token>
+    domains: ["<your>", "<list>", "<of>", "<domains>"]
 ```
 
 This will produce a service named `php_translation.adapter.phrase_app` that could be used in the configuration for

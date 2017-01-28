@@ -30,11 +30,17 @@ class PhraseApp implements Storage, TransferableStorage
      */
     private $localeToIdMapping;
 
-    public function __construct(PhraseAppClient $client, string $projectId, array $localeToIdMapping)
+    /**
+     * @var array
+     */
+    private $domains;
+
+    public function __construct(PhraseAppClient $client, string $projectId, array $localeToIdMapping, array $domains)
     {
         $this->client = $client;
         $this->projectId = $projectId;
         $this->localeToIdMapping = $localeToIdMapping;
+        $this->domains = $domains;
     }
 
     public function get($locale, $domain, $key)
@@ -65,7 +71,7 @@ class PhraseApp implements Storage, TransferableStorage
         $locale = $catalogue->getLocale();
         $localeId = $this->getLocaleId($locale);
 
-        foreach ($catalogue->getDomains() as $domain) {
+        foreach ($this->domains as $domain) {
             try {
                 $response = $this->client->export()->locale($this->projectId, $localeId, 'symfony_xliff', [
                     'tag' => $domain
@@ -74,7 +80,11 @@ class PhraseApp implements Storage, TransferableStorage
                 throw new StorageException($e->getMessage());
             }
 
-            $catalogue->addCatalogue(XliffConverter::contentToCatalogue($response, $locale, $domain));
+            try {
+                $catalogue->addCatalogue(XliffConverter::contentToCatalogue($response, $locale, $domain));
+            } catch (\Throwable $e) {
+                // ignore empty translation files
+            }
         }
 
         return $catalogue;
@@ -88,7 +98,7 @@ class PhraseApp implements Storage, TransferableStorage
         $locale = $catalogue->getLocale();
         $localeId = $this->getLocaleId($locale);
 
-        foreach ($catalogue->getDomains() as $domain) {
+        foreach ($this->domains as $domain) {
             $data = XliffConverter::catalogueToContent($catalogue, $domain);
 
             $file = sys_get_temp_dir() . '/' . $domain . '.' . $locale . '.xlf';
