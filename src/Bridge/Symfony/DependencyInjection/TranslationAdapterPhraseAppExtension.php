@@ -2,12 +2,14 @@
 
 namespace Translation\PlatformAdapter\PhraseApp\Bridge\Symfony\DependencyInjection;
 
-use nediam\PhraseApp\PhraseAppClient;
+use FAPI\PhraseApp\PhraseAppClient;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
-use Translation\PlatformAdapter\PhraseApp\Bridge\Symfony\XliffFileDumper;
 use Translation\PlatformAdapter\PhraseApp\PhraseApp;
 
+/**
+ * @author Sascha-Oliver Prolic <saschaprolic@googlemail.com>
+ */
 class TranslationAdapterPhraseAppExtension extends Extension
 {
     /**
@@ -17,8 +19,6 @@ class TranslationAdapterPhraseAppExtension extends Extension
     {
         $configuration = new Configuration($container);
         $config = $this->processConfiguration($configuration, $configs);
-
-        $container->setParameter('translation.dumper.xliff.class', XliffFileDumper::class);
 
         $apiDef = $container->register('php_translation.adapter.phrase_app.raw');
         $apiDef->setClass(PhraseAppClient::class);

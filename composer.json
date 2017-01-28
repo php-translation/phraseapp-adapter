@@ -16,11 +16,11 @@
         "php": "^7.0",
         "php-translation/common": "^0.2",
         "php-translation/symfony-storage": "^0.2",
-        "nediam/phraseapp-lib": "^1.2",
+        "friendsofapi/phraseapp": "^0.1",
         "symfony/translation": "^2.7 || ^3.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^4.5 || ^5.4",
+        "phpunit/phpunit": "^5.7",
         "nyholm/symfony-bundle-test": "^1.0",
         "php-http/curl-client": "^1.6",
         "php-http/httplug-bundle": "^1.3",
