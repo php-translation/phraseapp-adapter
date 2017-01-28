@@ -25,7 +25,6 @@ class TranslationAdapterPhraseAppExtension extends Extension
         $configuration = new Configuration($container);
         $config = $this->processConfiguration($configuration, $configs);
 
-        // this can be removed, as soon as https://github.com/symfony/symfony/pull/21442 is merged
         $container->setParameter('translation.dumper.xliff.class', XliffFileDumper::class);
 
         $requestBuilder = (new Definition(RequestBuilder::class))
@@ -36,7 +35,7 @@ class TranslationAdapterPhraseAppExtension extends Extension
             ->addArgument(new Reference($config['httplug_client']))
             ->addArgument(new Reference($config['httplug_uri_factory']));
 
-        $apiDef = $container->register('php_translation.adapter.loco.raw');
+        $apiDef = $container->register('php_translation.adapter.phrase_app.raw');
         $apiDef->setClass(PhraseAppClient::class)
             ->setFactory([PhraseAppClient::class, 'configure'])
             ->addArgument($clientConfigurator)

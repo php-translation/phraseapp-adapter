@@ -88,10 +88,10 @@ class XliffFileDumper extends FileDumper
 
             // changed for phrase app
             $translation->setAttribute('id', md5($source));
-            $translation->setAttribute('resname', $source);
+            $translation->setAttribute('resname', "$domain::$source");
 
             $s = $translation->appendChild($dom->createElement('source'));
-            $s->appendChild($dom->createTextNode("$domain::$source"));
+            $s->appendChild($dom->createTextNode($source));
 
             // Does the target contain characters requiring a CDATA section?
             $text = 1 === preg_match('/[&<>]/', $target) ? $dom->createCDATASection($target) : $dom->createTextNode($target);
@@ -152,7 +152,7 @@ class XliffFileDumper extends FileDumper
             $segment = $translation->appendChild($dom->createElement('segment'));
 
             $s = $segment->appendChild($dom->createElement('source'));
-            $s->appendChild($dom->createTextNode("$domain::$source"));
+            $s->appendChild($dom->createTextNode($source));
 
             // Does the target contain characters requiring a CDATA section?
             $text = 1 === preg_match('/[&<>]/', $target) ? $dom->createCDATASection($target) : $dom->createTextNode($target);
