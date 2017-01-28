@@ -51,7 +51,7 @@ class PhraseApp implements Storage, TransferableStorage
         $this->projectId = $projectId;
         $this->localeToIdMapping = $localeToIdMapping;
         $this->domains = $domains;
-        $this->defaultLocale;
+        $this->defaultLocale = $defaultLocale;
     }
 
     public function get($locale, $domain, $key)
