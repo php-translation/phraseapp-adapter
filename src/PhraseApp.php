@@ -2,6 +2,9 @@
 
 namespace Translation\PlatformAdapter\PhraseApp;
 
+use FAPI\PhraseApp\Model\Key\KeyCreated;
+use FAPI\PhraseApp\Model\Key\KeySearchResults;
+use FAPI\PhraseApp\Model\Translation\Index;
 use FAPI\PhraseApp\PhraseAppClient;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 use Translation\Common\Exception\StorageException;
@@ -56,22 +59,62 @@ class PhraseApp implements Storage, TransferableStorage
 
     public function get($locale, $domain, $key)
     {
-        throw new \BadMethodCallException('Not implemented');
+        /* @var Index $index */
+        $index = $this->client->translation()->indexLocale($this->projectId, $this->getLocaleId($locale), [
+            'tags' => $domain
+        ]);
+
+        foreach ($index->getTranslations() as $translation) {
+            if ($translation->getKey()->getName() === $domain.'::'.$key) {
+                return new Message($key, $domain, $locale, $translation->getContent(), []);
+            }
+        }
     }
 
     public function create(Message $message)
     {
-        throw new \BadMethodCallException('Not implemented');
+        /* @var KeyCreated $keyCreated */
+        $keyCreated = $this->client->key()->create($this->projectId, $message->getDomain().'::'.$message->getKey(), [
+            'tags' => $message->getDomain(),
+        ]);
+
+        $this->client->translation()->create(
+            $this->projectId,
+            $this->getLocaleId($message->getLocale()),
+            $keyCreated->getId(),
+            $message->getTranslation()
+        );
     }
 
     public function update(Message $message)
     {
-        throw new \BadMethodCallException('Not implemented');
+        /* @var Index $index */
+        $index = $this->client->translation()->indexLocale($this->projectId, $this->getLocaleId($message->getLocale()), [
+            'tags' => $message->getDomain()
+        ]);
+
+        foreach ($index->getTranslations() as $translation) {
+            if ($translation->getKey() === $message->getDomain().'::'.$message->getKey()) {
+                $this->client->translation()->update($this->projectId, $translation->getId(), $message->getTranslation());
+                break;
+            }
+        }
     }
 
     public function delete($locale, $domain, $key)
     {
-        throw new \BadMethodCallException('Not implemented');
+        /* @var KeySearchResults $results */
+        $results = $this->client->key()->search($this->projectId, $this->getLocaleId($locale), [
+            'tags' => $domain,
+            'name' => $domain.'::'.$key
+        ]);
+
+        foreach ($results->getSearchResults() as $searchResult) {
+            if ($searchResult->getName() === $domain.'::'.$key) {
+                $this->client->key()->delete($this->projectId, $searchResult->getId());
+                break;
+            }
+        }
     }
 
     /**
@@ -84,7 +127,7 @@ class PhraseApp implements Storage, TransferableStorage
 
         foreach ($this->domains as $domain) {
             try {
-                $response = $this->client->export()->locale($this->projectId, $localeId, 'symfony_xliff', [
+                $response = $this->client->locale()->download($this->projectId, $localeId, 'symfony_xliff', [
                     'tag' => $domain
                 ]);
             } catch (\Throwable $e) {
@@ -141,7 +184,7 @@ class PhraseApp implements Storage, TransferableStorage
             try {
                 file_put_contents($file, $data);
 
-                $this->client->import()->import($this->projectId, 'symfony_xliff', $file, [
+                $this->client->upload()->upload($this->projectId, 'symfony_xliff', $file, [
                     'locale_id' => $localeId,
                     'tags' => $domain,
                 ]);
