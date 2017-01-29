@@ -8,7 +8,7 @@ use Translation\Common\Exception\StorageException;
 use Translation\Common\Model\Message;
 use Translation\Common\Storage;
 use Translation\Common\TransferableStorage;
-use Translation\SymfonyStorage\XliffConverter;
+use Translation\PlatformAdapter\PhraseApp\Bridge\Symfony\XliffConverter;
 
 /**
  * @author Sascha-Oliver Prolic <saschaprolic@googlemail.com>
@@ -35,12 +35,23 @@ class PhraseApp implements Storage, TransferableStorage
      */
     private $domains;
 
-    public function __construct(PhraseAppClient $client, string $projectId, array $localeToIdMapping, array $domains)
-    {
+    /**
+     * @var string|null
+     */
+    private $defaultLocale;
+
+    public function __construct(
+        PhraseAppClient $client,
+        string $projectId,
+        array $localeToIdMapping,
+        array $domains,
+        string $defaultLocale = null
+    ) {
         $this->client = $client;
         $this->projectId = $projectId;
         $this->localeToIdMapping = $localeToIdMapping;
         $this->domains = $domains;
+        $this->defaultLocale = $defaultLocale;
     }
 
     public function get($locale, $domain, $key)
@@ -81,7 +92,17 @@ class PhraseApp implements Storage, TransferableStorage
             }
 
             try {
-                $catalogue->addCatalogue(XliffConverter::contentToCatalogue($response, $locale, $domain));
+                $newCatalogue = XliffConverter::contentToCatalogue($response, $locale, $domain);
+
+                $messages = [];
+
+                foreach ($newCatalogue->all($domain) as $message => $translation) {
+                    $messages[substr($message, strlen($domain) + 2)] = $translation;
+                }
+
+                $newCatalogue->replace($messages, $domain);
+
+                $catalogue->addCatalogue($newCatalogue);
             } catch (\Throwable $e) {
                 // ignore empty translation files
             }
@@ -99,7 +120,21 @@ class PhraseApp implements Storage, TransferableStorage
         $localeId = $this->getLocaleId($locale);
 
         foreach ($this->domains as $domain) {
-            $data = XliffConverter::catalogueToContent($catalogue, $domain);
+            $messages = [];
+
+            foreach ($catalogue->all($domain) as $message => $translation) {
+                $messages[$domain . '::' . $message] = $translation;
+            }
+
+            $catalogue->replace($messages, $domain);
+
+            if ($this->defaultLocale) {
+                $options = ['default_locale' => $this->defaultLocale];
+            } else {
+                $options = [];
+            }
+
+            $data = XliffConverter::catalogueToContent($catalogue, $domain, $options);
 
             $file = sys_get_temp_dir() . '/' . $domain . '.' . $locale . '.xlf';
 

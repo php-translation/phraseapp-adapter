@@ -45,6 +45,7 @@ translation_adapter_phrase_app:
         en: <en locale id>
         fr: <fr locale id>
     token: <your phrase app token>
+    default_locale: en
     domains: ["<your>", "<list>", "<of>", "<domains>"]
 ```
 

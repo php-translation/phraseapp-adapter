@@ -46,5 +46,9 @@ class TranslationAdapterPhraseAppExtension extends Extension
             ->addArgument($config['project_id'])
             ->addArgument($config['locale_to_id_mapping'])
             ->addArgument($config['domains']);
+
+        if (isset($config['default_locale'])) {
+            $adapterDef->addArgument($config['default_locale']);
+        }
     }
 }
