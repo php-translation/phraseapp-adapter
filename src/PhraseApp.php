@@ -64,7 +64,7 @@ class PhraseApp implements Storage, TransferableStorage
             'tags' => $domain
         ]);
 
-        foreach ($index->getTranslations() as $translation) {
+        foreach ($index as $translation) {
             if ($translation->getKey()->getName() === $domain.'::'.$key) {
                 return new Message($key, $domain, $locale, $translation->getContent(), []);
             }
@@ -152,7 +152,7 @@ class PhraseApp implements Storage, TransferableStorage
             'name' => $domain.'::'.$key
         ]);
 
-        foreach ($results->getSearchResults() as $searchResult) {
+        foreach ($results as $searchResult) {
             if ($searchResult->getName() === $domain.'::'.$key) {
                 $this->client->key()->delete($this->projectId, $searchResult->getId());
                 break;
