@@ -85,11 +85,8 @@ class PhraseApp implements Storage, TransferableStorage
             if ($key->getName() === $message->getDomain().'::'.$message->getKey()) {
                 /* @var Index $index */
                 $index = $this->client->translation()->indexKey($this->projectId, $key->getId(), ['tags' => $message->getDomain()]);
-
                 foreach ($index as $translation) {
-                    if ($translation->getLocale()->getId() === $localeId
-                        && $translation->getContent() !== $message->getTranslation()
-                    ) {
+                    if ($translation->getLocale()->getId() === $localeId) {
                         $this->client->translation()->update($this->projectId, $translation->getId(), $message->getTranslation());
 
                         return;
