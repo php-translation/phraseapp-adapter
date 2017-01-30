@@ -76,25 +76,28 @@ class PhraseApp implements Storage, TransferableStorage
         $localeId = $this->getLocaleId($message->getLocale());
 
         /* @var KeySearchResults $result */
-        $result = $this->client->key()->search($this->projectId, ['tags' => $message->getDomain()]);
+        $result = $this->client->key()->search($this->projectId, [
+            'tags' => $message->getDomain(),
+            'name' => $message->getDomain().'::'.$message->getKey(),
+        ]);
 
-        foreach ($result->getSearchResults() as $key) {
+        foreach ($result as $key) {
             if ($key->getName() === $message->getDomain().'::'.$message->getKey()) {
                 /* @var Index $index */
                 $index = $this->client->translation()->indexKey($this->projectId, $key->getId(), ['tags' => $message->getDomain()]);
 
-                foreach ($index->getTranslations() as $translation) {
-                    if ($translation->getLocale()->getId() !== $localeId) {
-                        continue;
-                    }
-
-                    if ($translation->getContent() !== $message->getTranslation()) {
+                foreach ($index as $translation) {
+                    if ($translation->getLocale()->getId() === $localeId
+                        && $translation->getContent() !== $message->getTranslation()
+                    ) {
                         $this->client->translation()->update($this->projectId, $translation->getId(), $message->getTranslation());
+
                         return;
                     }
                 }
 
                 $this->client->translation()->create($this->projectId, $localeId, $key->getId(), $message->getTranslation());
+
                 return;
             }
         }
@@ -114,15 +117,32 @@ class PhraseApp implements Storage, TransferableStorage
 
     public function update(Message $message)
     {
-        /* @var Index $index */
-        $index = $this->client->translation()->indexLocale($this->projectId, $this->getLocaleId($message->getLocale()), [
-            'tags' => $message->getDomain()
+        $localeId = $this->getLocaleId($message->getLocale());
+        /* @var KeySearchResults $results */
+        $results = $this->client->key()->search($this->projectId, [
+            'tags' => $message->getDomain(),
+            'name' => $message->getDomain().'::'.$message->getKey()
         ]);
 
-        foreach ($index->getTranslations() as $translation) {
-            if ($translation->getKey() === $message->getDomain().'::'.$message->getKey()) {
-                $this->client->translation()->update($this->projectId, $translation->getId(), $message->getTranslation());
-                break;
+        foreach ($results as $searchResult) {
+            if ($searchResult->getName() === $message->getDomain().'::'.$message->getKey()) {
+
+                /* @var Index $translations */
+                $translations = $this->client->translation()->indexKey($this->projectId, $searchResult->getId(), [
+                    'tags' => $message->getDomain(),
+                ]);
+
+                foreach ($translations as $translation) {
+                    if ($translation->getLocale()->getId() === $localeId) {
+                        $this->client->translation()->update(
+                            $this->projectId,
+                            $translation->getId(),
+                            $message->getTranslation()
+                        );
+
+                        return;
+                    }
+                }
             }
         }
     }
