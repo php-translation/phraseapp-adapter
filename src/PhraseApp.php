@@ -73,6 +73,32 @@ class PhraseApp implements Storage, TransferableStorage
 
     public function create(Message $message)
     {
+        $localeId = $this->getLocaleId($message->getLocale());
+
+        /* @var KeySearchResults $result */
+        $result = $this->client->key()->search($this->projectId, ['tags' => $message->getDomain()]);
+
+        foreach ($result->getSearchResults() as $key) {
+            if ($key->getName() === $message->getDomain().'::'.$message->getKey()) {
+                /* @var Index $index */
+                $index = $this->client->translation()->indexKey($this->projectId, $key->getId(), ['tags' => $message->getDomain()]);
+
+                foreach ($index->getTranslations() as $translation) {
+                    if ($translation->getLocale()->getId() !== $localeId) {
+                        continue;
+                    }
+
+                    if ($translation->getContent() !== $message->getTranslation()) {
+                        $this->client->translation()->update($this->projectId, $translation->getId(), $message->getTranslation());
+                        return;
+                    }
+                }
+
+                $this->client->translation()->create($this->projectId, $localeId, $key->getId(), $message->getTranslation());
+                return;
+            }
+        }
+
         /* @var KeyCreated $keyCreated */
         $keyCreated = $this->client->key()->create($this->projectId, $message->getDomain().'::'.$message->getKey(), [
             'tags' => $message->getDomain(),
