@@ -57,6 +57,9 @@ class PhraseApp implements Storage, TransferableStorage
         $this->defaultLocale = $defaultLocale;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function get($locale, $domain, $key)
     {
         /* @var Index $index */
@@ -71,6 +74,9 @@ class PhraseApp implements Storage, TransferableStorage
         }
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function create(Message $message)
     {
         $localeId = $this->getLocaleId($message->getLocale());
@@ -87,12 +93,12 @@ class PhraseApp implements Storage, TransferableStorage
                 $index = $this->client->translation()->indexKey($this->projectId, $key->getId(), ['tags' => $message->getDomain()]);
                 foreach ($index as $translation) {
                     if ($translation->getLocale()->getId() === $localeId) {
-                        $this->client->translation()->update($this->projectId, $translation->getId(), $message->getTranslation());
-
+                        // Translation does already exist
                         return;
                     }
                 }
 
+                // Create a translation with an existing key
                 $this->client->translation()->create($this->projectId, $localeId, $key->getId(), $message->getTranslation());
 
                 return;
@@ -112,6 +118,9 @@ class PhraseApp implements Storage, TransferableStorage
         );
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function update(Message $message)
     {
         $localeId = $this->getLocaleId($message->getLocale());
@@ -142,8 +151,14 @@ class PhraseApp implements Storage, TransferableStorage
                 }
             }
         }
+
+        // No translation was found, lets create one.
+        $this->create($message);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function delete($locale, $domain, $key)
     {
         /* @var KeySearchResults $results */
@@ -239,6 +254,13 @@ class PhraseApp implements Storage, TransferableStorage
         }
     }
 
+    /**
+     * @param string $locale
+     *
+     * @return string
+     *
+     * @throws StorageException If no id was found for locale.
+     */
     private function getLocaleId(string $locale): string
     {
         if (isset($this->localeToIdMapping[$locale])) {
