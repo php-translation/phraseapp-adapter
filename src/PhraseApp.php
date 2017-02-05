@@ -105,10 +105,15 @@ class PhraseApp implements Storage, TransferableStorage
             }
         }
 
-        /* @var KeyCreated $keyCreated */
-        $keyCreated = $this->client->key()->create($this->projectId, $message->getDomain().'::'.$message->getKey(), [
-            'tags' => $message->getDomain(),
-        ]);
+        try {
+            /* @var KeyCreated $keyCreated */
+            $keyCreated = $this->client->key()->create($this->projectId, $message->getDomain().'::'.$message->getKey(), [
+                'tags' => $message->getDomain(),
+            ]);
+        } catch (UnprocessableEntityException $e) {
+            // Translaton does already exist
+            return;
+        }
 
         $this->client->translation()->create(
             $this->projectId,
