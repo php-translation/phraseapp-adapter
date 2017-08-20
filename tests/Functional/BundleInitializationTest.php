@@ -13,9 +13,8 @@ namespace Translation\PlatformAdapter\PhraseApp\Tests\Functional;
 
 use Http\HttplugBundle\HttplugBundle;
 use Nyholm\BundleTest\BaseBundleTestCase;
-use Translation\PlatformAdapter\Loco\Bridge\Symfony\TranslationAdapterLocoBundle;
-use Translation\PlatformAdapter\Loco\Loco;
 use Translation\PlatformAdapter\PhraseApp\Bridge\Symfony\TranslationAdapterPhraseAppBundle;
+use Translation\PlatformAdapter\PhraseApp\PhraseApp;
 
 class BundleInitializationTest extends BaseBundleTestCase
 {
@@ -29,11 +28,14 @@ class BundleInitializationTest extends BaseBundleTestCase
         $kernel = $this->createKernel();
         $kernel->addBundle(HttplugBundle::class);
 
+        // Add some configuration
+        $kernel->addConfigFile(__DIR__.'/config/default.yml');
+
         $this->bootKernel();
         $container = $this->getContainer();
 
         $this->assertTrue($container->has('php_translation.adapter.phrase_app'));
         $service = $container->get('php_translation.adapter.phrase_app');
-        $this->assertInstanceOf(Loco::class, $service);
+        $this->assertInstanceOf(PhraseApp::class, $service);
     }
 }
