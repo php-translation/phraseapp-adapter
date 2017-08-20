@@ -12,7 +12,7 @@ branches:
 php:
     - 7.0
     - 7.1
-    - hhvm
+
 env:
   global:
     - TEST_COMMAND="composer test"
@@ -25,8 +25,13 @@ matrix:
   include:
     - php: 7.0
       env: COMPOSER_FLAGS="--prefer-stable --prefer-lowest" COVERAGE=true TEST_COMMAND="composer test-ci" SYMFONY_VERSION=2.7.*
+    - php: hhvm
+      dist: trusty
+      env: SYMFONY_VERSION=2.8.*
   allow_failures:
     - php: hhvm
+      dist: trusty
+      env: SYMFONY_VERSION=2.8.*
 
 install:
     - composer require symfony/symfony:${SYMFONY_VERSION} --no-update
