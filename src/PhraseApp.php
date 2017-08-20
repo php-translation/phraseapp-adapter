@@ -11,7 +11,7 @@ use Translation\Common\Exception\StorageException;
 use Translation\Common\Model\Message;
 use Translation\Common\Storage;
 use Translation\Common\TransferableStorage;
-use Translation\PlatformAdapter\PhraseApp\Bridge\Symfony\XliffConverter;
+use Translation\SymfonyStorage\XliffConverter;
 
 /**
  * @author Sascha-Oliver Prolic <saschaprolic@googlemail.com>
