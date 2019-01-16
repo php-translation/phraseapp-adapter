@@ -191,7 +191,10 @@ class PhraseApp implements Storage, TransferableStorage
         foreach ($this->domains as $domain) {
             try {
                 $response = $this->client->locale()->download($this->projectId, $localeId, 'symfony_xliff', [
-                    'tag' => $domain
+                    'tag' => $domain,
+                    'format_options' => [
+                        'enclose_in_cdata' => 1
+                    ],
                 ]);
             } catch (\Throwable $e) {
                 throw new StorageException($e->getMessage());
