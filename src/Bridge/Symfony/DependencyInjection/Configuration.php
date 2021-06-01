@@ -13,21 +13,39 @@ class Configuration implements ConfigurationInterface
     /**
      * {@inheritdoc}
      */
-    public function getConfigTreeBuilder()
+    public function getConfigTreeBuilder(): TreeBuilder
     {
-        $treeBuilder = new TreeBuilder();
-        $root = $treeBuilder->root('translation_adapter_phrase_app');
+        $treeBuilder = new TreeBuilder('translation_adapter_phrase_app');
+        if (!method_exists($treeBuilder, 'getRootNode')) {
+            $root = $treeBuilder->root('translation_adapter_phrase_app');
+        } else {
+            $root = $treeBuilder->getRootNode();
+        }
 
-        $root->children()
-            ->scalarNode('httplug_client')->defaultValue('httplug.client')->cannotBeEmpty()->end()
-            ->scalarNode('httplug_message_factory')->defaultValue('httplug.message_factory')->cannotBeEmpty()->end()
-            ->scalarNode('httplug_uri_factory')->defaultValue('httplug.uri_factory')->cannotBeEmpty()->end()
-            ->scalarNode('project_id')->cannotBeEmpty()->end()
-            ->scalarNode('token')->cannotBeEmpty()->end()
-            ->scalarNode('default_locale')->end()
-            ->arrayNode('locale_to_id_mapping')->prototype('scalar')->end()->end()
-            ->arrayNode('domains')->prototype('scalar')->end()->end()
-        ->end();
+        $root
+            ->children()
+                ->scalarNode('httplug_client')
+                    ->defaultValue('httplug.client')->cannotBeEmpty()
+                ->end()
+                ->scalarNode('httplug_message_factory')
+                    ->defaultValue('httplug.message_factory')->cannotBeEmpty()
+                ->end()
+                ->scalarNode('httplug_uri_factory')
+                    ->defaultValue('httplug.uri_factory')->cannotBeEmpty()->end()
+                ->scalarNode('project_id')
+                    ->cannotBeEmpty()
+                ->end()
+                ->scalarNode('token')
+                    ->cannotBeEmpty()
+                ->end()
+                ->scalarNode('default_locale')->end()
+                ->arrayNode('locale_to_id_mapping')
+                    ->prototype('scalar')->end()
+                ->end()
+                ->arrayNode('domains')
+                    ->prototype('scalar')->end()
+                ->end()
+            ->end();
 
         return $treeBuilder;
     }
