@@ -18,12 +18,12 @@ use Translation\PlatformAdapter\PhraseApp\PhraseApp;
 
 class BundleInitializationTest extends BaseBundleTestCase
 {
-    protected function getBundleClass()
+    protected function getBundleClass(): string
     {
         return TranslationAdapterPhraseAppBundle::class;
     }
 
-    public function testRegisterBundle()
+    public function testRegisterBundle(): void
     {
         $kernel = $this->createKernel();
         $kernel->addBundle(HttplugBundle::class);
@@ -31,11 +31,11 @@ class BundleInitializationTest extends BaseBundleTestCase
         // Add some configuration
         $kernel->addConfigFile(__DIR__.'/config/default.yml');
 
-        $this->bootKernel();
-        $container = $this->getContainer();
+        $kernel->boot();
+        $container = $kernel->getContainer();
 
-        $this->assertTrue($container->has('php_translation.adapter.phrase_app'));
+        self::assertTrue($container->has('php_translation.adapter.phrase_app'));
         $service = $container->get('php_translation.adapter.phrase_app');
-        $this->assertInstanceOf(PhraseApp::class, $service);
+        self::assertInstanceOf(PhraseApp::class, $service);
     }
 }

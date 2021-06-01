@@ -2,6 +2,7 @@
 
 namespace Translation\PlatformAdapter\PhraseApp;
 
+use FAPI\PhraseApp\Exception\Domain\UnprocessableEntityException;
 use FAPI\PhraseApp\Model\Key\KeyCreated;
 use FAPI\PhraseApp\Model\Key\KeySearchResults;
 use FAPI\PhraseApp\Model\Translation\Index;
@@ -9,6 +10,7 @@ use FAPI\PhraseApp\PhraseAppClient;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 use Translation\Common\Exception\StorageException;
 use Translation\Common\Model\Message;
+use Translation\Common\Model\MessageInterface;
 use Translation\Common\Storage;
 use Translation\Common\TransferableStorage;
 use Translation\SymfonyStorage\XliffConverter;
@@ -60,7 +62,7 @@ class PhraseApp implements Storage, TransferableStorage
     /**
      * {@inheritdoc}
      */
-    public function get($locale, $domain, $key)
+    public function get(string $locale, string $domain, string $key): ?MessageInterface
     {
         /* @var Index $index */
         $index = $this->client->translation()->indexLocale($this->projectId, $this->getLocaleId($locale), [
@@ -77,7 +79,7 @@ class PhraseApp implements Storage, TransferableStorage
     /**
      * {@inheritdoc}
      */
-    public function create(Message $message)
+    public function create(MessageInterface $message): void
     {
         $localeId = $this->getLocaleId($message->getLocale());
 
@@ -126,7 +128,7 @@ class PhraseApp implements Storage, TransferableStorage
     /**
      * {@inheritdoc}
      */
-    public function update(Message $message)
+    public function update(MessageInterface $message): void
     {
         $localeId = $this->getLocaleId($message->getLocale());
         /* @var KeySearchResults $results */
@@ -164,12 +166,13 @@ class PhraseApp implements Storage, TransferableStorage
     /**
      * {@inheritdoc}
      */
-    public function delete($locale, $domain, $key)
+    public function delete(string $locale, string $domain, string $key): void
     {
         /* @var KeySearchResults $results */
-        $results = $this->client->key()->search($this->projectId, $this->getLocaleId($locale), [
+        $results = $this->client->key()->search($this->projectId, [
             'tags' => $domain,
-            'name' => $domain.'::'.$key
+            'name' => $domain.'::'.$key,
+            'ids' => $this->getLocaleId($locale),
         ]);
 
         foreach ($results as $searchResult) {
@@ -183,7 +186,7 @@ class PhraseApp implements Storage, TransferableStorage
     /**
      * {@inheritdoc}
      */
-    public function export(MessageCatalogueInterface $catalogue)
+    public function export(MessageCatalogueInterface $catalogue, array $options = []): void
     {
         $locale = $catalogue->getLocale();
         $localeId = $this->getLocaleId($locale);
@@ -213,14 +216,12 @@ class PhraseApp implements Storage, TransferableStorage
                 // ignore empty translation files
             }
         }
-
-        return $catalogue;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function import(MessageCatalogueInterface $catalogue)
+    public function import(MessageCatalogueInterface $catalogue, array $options = []): void
     {
         $locale = $catalogue->getLocale();
         $localeId = $this->getLocaleId($locale);

@@ -19,22 +19,23 @@ class TranslationAdapterPhraseAppExtension extends Extension
     /**
      * {@inheritdoc}
      */
-    public function load(array $configs, ContainerBuilder $container)
+    public function load(array $configs, ContainerBuilder $container): void
     {
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
         $requestBuilder = (new Definition(RequestBuilder::class))
-            ->addArgument(new Reference($config['httplug_message_factory']));
+            ->addArgument(empty($config['httplug_message_factory']) ? null : new Reference($config['httplug_message_factory']));
 
         $clientConfigurator = (new Definition(HttpClientConfigurator::class))
             ->addArgument($config['token'])
-            ->addArgument(new Reference($config['httplug_client']))
-            ->addArgument(new Reference($config['httplug_uri_factory']));
+            ->addArgument(empty($config['httplug_client']) ? null : new Reference($config['httplug_client']))
+            ->addArgument(empty($config['httplug_uri_factory']) ? null : new Reference($config['httplug_uri_factory']));
 
-        $apiDef = $container->register('php_translation.adapter.loco.raw');
+        $apiDef = $container->register('php_translation.adapter.phrase_app.raw');
         $apiDef->setClass(PhraseAppClient::class)
             ->setFactory([PhraseAppClient::class, 'configure'])
+            ->setPublic(true)
             ->addArgument($clientConfigurator)
             ->addArgument(null)
             ->addArgument($requestBuilder);
@@ -42,6 +43,7 @@ class TranslationAdapterPhraseAppExtension extends Extension
         $adapterDef = $container->register('php_translation.adapter.phrase_app');
         $adapterDef
             ->setClass(PhraseApp::class)
+            ->setPublic(true)
             ->addArgument($apiDef)
             ->addArgument($config['project_id'])
             ->addArgument($config['locale_to_id_mapping'])

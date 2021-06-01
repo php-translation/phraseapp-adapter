@@ -10,28 +10,33 @@ branches:
     - /^patch-.*$/
 
 php:
-    - 7.0
-    - 7.1
+    - 7.2
+    - 7.4
+    - 8.0
 
 env:
   global:
     - TEST_COMMAND="composer test"
   matrix:
-    - SYMFONY_VERSION=3.2.*
-    - SYMFONY_VERSION=2.7.*
+    - SYMFONY_VERSION=4.4.*
+    - SYMFONY_VERSION=5.2.*
 
 matrix:
   fast_finish: true
   include:
-    - php: 7.0
-      env: COMPOSER_FLAGS="--prefer-stable --prefer-lowest" COVERAGE=true TEST_COMMAND="composer test-ci" SYMFONY_VERSION=2.7.*
+    - php: 7.2
+      env: COMPOSER_FLAGS="--prefer-stable --prefer-lowest" COVERAGE=true TEST_COMMAND="composer test-ci" SYMFONY_VERSION=4.4.*
+    - php: 7.4
+      env: COMPOSER_FLAGS="--prefer-stable --prefer-lowest" COVERAGE=true TEST_COMMAND="composer test-ci" SYMFONY_VERSION=5.2.*
+    - php: 8.0
+      env: COMPOSER_FLAGS="--prefer-stable --prefer-lowest" COVERAGE=true TEST_COMMAND="composer test-ci" SYMFONY_VERSION=5.2.*
     - php: hhvm
       dist: trusty
-      env: SYMFONY_VERSION=2.8.*
+      env: SYMFONY_VERSION=4.4.*
   allow_failures:
     - php: hhvm
       dist: trusty
-      env: SYMFONY_VERSION=2.8.*
+      env: SYMFONY_VERSION=4.4.*
 
 install:
     - composer require symfony/symfony:${SYMFONY_VERSION} --no-update
