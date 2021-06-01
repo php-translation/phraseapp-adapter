@@ -172,7 +172,7 @@ class PhraseApp implements Storage, TransferableStorage
         $results = $this->client->key()->search($this->projectId, [
             'tags' => $domain,
             'name' => $domain.'::'.$key,
-            'ids' => $this->getLocaleId($locale),
+            'locale_id' => $this->getLocaleId($locale),
         ]);
 
         foreach ($results as $searchResult) {
@@ -226,6 +226,10 @@ class PhraseApp implements Storage, TransferableStorage
         $locale = $catalogue->getLocale();
         $localeId = $this->getLocaleId($locale);
 
+        if ($this->defaultLocale) {
+            $options = ['default_locale' => $this->defaultLocale];
+        }
+
         foreach ($this->domains as $domain) {
             $messages = [];
 
@@ -234,12 +238,6 @@ class PhraseApp implements Storage, TransferableStorage
             }
 
             $catalogue->replace($messages, $domain);
-
-            if ($this->defaultLocale) {
-                $options = ['default_locale' => $this->defaultLocale];
-            } else {
-                $options = [];
-            }
 
             $data = XliffConverter::catalogueToContent($catalogue, $domain, $options);
 
